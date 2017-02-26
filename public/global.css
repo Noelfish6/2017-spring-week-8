@@ -21,6 +21,7 @@ h2 {margin: 10px 0 5px;}
 
 .plot{
 	min-height:300px;
+	position:relative;
 }
 .control{
 	height:100px;
@@ -30,3 +31,11 @@ h2 {margin: 10px 0 5px;}
 	.control .navbar{background:white;}
 
 
+/*Timeseries*/
+.time-series .axis-y .tick line{
+	display:none;
+}
+.time-series .axis-y .tick text{
+	fill:rgb(120,120,120);
+}
+.time-series .axis .domain{ display:none; }

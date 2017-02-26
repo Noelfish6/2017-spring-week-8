@@ -46,11 +46,11 @@ function TimeseriesCanvas(){
 			.y(function(d){return scaleY(d.length)});
 		var area = d3.area()
 			.x(function(d){return scaleX(d.x0)})
-			.y0(function(d){return H})
+			.y0(function(d){return h})
 			.y1(function(d){return scaleY(d.length)});
 		var axisX = d3.axisBottom()
 			.scale(scaleX)
-			.ticks(d3.timeMonth.every(1));
+			.ticks(d3.timeMonth.every(3));
 		var axisY = d3.axisLeft()
 			.tickSize(-W)
 			.scale(scaleY)
@@ -68,9 +68,36 @@ function TimeseriesCanvas(){
 		<canvas>
 		</canvas>
 		*/
+
+		//The <canvas> portion
+		selection.selectAll('canvas').data([1]).enter().append('canvas');
+		var canvas = selection.select('canvas')
+			.attr('width',W)
+			.attr('height',H)
+			.style('position','absolute') //this ensures that <canvas> and <svg> line up
+			.style('top',0)
+			.style('left',0)
+			.style('pointer-events','none') //canvas element will not interact; all events are captured by <svg> instead
+			.node()
+		var ctx = canvas.getContext('2d');
+
+		ctx.fillStyle = 'rgba(255,0,0,.1)';
+		ctx.strokeStyle = 'rgb(255,0,0)';
+		ctx.lineWidth = 1;
+
+		var pathLine = new Path2D( line(dayBins) ),
+			pathArea = new Path2D( area(dayBins) );
+
+		ctx.translate(M.l,M.t);
+		ctx.fill(pathArea);
+		ctx.stroke(pathLine);
+
+
+		//The <svg> portion
 		var svg = selection.selectAll('svg')
 			.data([dayBins]);
 
+		//The enter set --> append the right DOM structure
 		var svgEnter = svg.enter()
 			.append('svg') //ENTER
 			.attr('width', W)
@@ -79,6 +106,18 @@ function TimeseriesCanvas(){
 		var plotEnter = svgEnter.append('g').attr('class','plot time-series')
 			.attr('transform','translate('+M.l+','+M.t+')');
 
+		plotEnter.append('g').attr('class','axis axis-x');
+		plotEnter.append('g').attr('class','axis axis-y');
+		plotEnter.append('g').attr('class','brush');
+
+		//Enter + update
+		var plot = svg.merge(svgEnter).select('.plot');
+
+		plot.select('.axis-x')
+			.attr('transform','translate(0,'+h+')')
+			.call(axisX);
+		plot.select('.axis-y').call(axisY);
+		plot.select('.brush').call(brush);
 	}
 
 	function brushend(){
