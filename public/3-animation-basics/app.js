@@ -20,8 +20,8 @@ var Point = function(){
 	return {
 		x:Math.random()*w,
 		y:Math.random()*h,
-		speedX: Math.random()*1-.5,
-		speedY: Math.random()*1-.5,
+		speedX: Math.random()*2-1,
+		speedY: Math.random()*2-1,
 		update: function(){
 			if((this.x+this.speedX)>w || (this.x+this.speedX)<0) this.speedX=-1*this.speedX;
 			if((this.y+this.speedY)>h || (this.y+this.speedY)<0) this.speedY = -1*this.speedY;
@@ -44,15 +44,26 @@ redraw();
 function redraw(){
 	stats.begin();
 
+	//With the help the second canvas, we can create motion trails
+	//Before clearing the main canvas1, copy its contents to canvas2
+	ctx2.clearRect(0,0,w,h);
+	ctx2.drawImage(canvas1,0,0);
+
 	//Start fresh...
 	ctx1.clearRect(0,0,w,h);
 	ctx1.fillStyle = 'rgba(0,0,0,.5)';
+
+	//Draw a "ghosted" version of its previous frame
+	ctx1.save();
+	ctx1.globalAlpha = .8; //this determines how fast the previus frames fade
+	ctx1.drawImage(canvas2,0,0);
+	ctx1.restore();
 
 	//Draw dot representing point1
 	ctx1.beginPath();
 	points.forEach(function(point){
 		ctx1.moveTo(point.x,point.y);
-		ctx1.arc(point.x,point.y,3,0,Math.PI*2);
+		ctx1.arc(point.x,point.y,1,0,Math.PI*2);
 		point.update();
 	})
 	ctx1.fill();
